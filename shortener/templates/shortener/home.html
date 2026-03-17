@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>URL Shortener</title>
+
+    <!-- Bootstrap CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body{
+            background: linear-gradient(135deg,#667eea,#764ba2);
+            height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            font-family: Arial;
+        }
+
+        .card{
+            padding:40px;
+            border-radius:15px;
+            box-shadow:0px 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .title{
+            font-weight:bold;
+            margin-bottom:20px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div class="card col-md-5">
+
+<h2 class="text-center title">🔗 URL Shortener</h2>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <div class="mb-3">
+        <input 
+        type="text" 
+        name="url" 
+        class="form-control"
+        placeholder="Paste your long URL here"
+        required>
+    </div>
+
+    <div class="d-grid">
+        <button class="btn btn-primary">
+            Shorten URL
+        </button>
+    </div>
+
+</form>
+
+{% if short_url %}
+
+<div class="alert alert-success mt-4 text-center">
+
+    <strong>Your Short URL:</strong>
+
+    <br><br>
+
+    <a href="{{ short_url }}" target="_blank">
+        {{ short_url }}
+    </a>
+
+</div>
+
+{% endif %}
+
+</div>
+
+</body>
+</html>
