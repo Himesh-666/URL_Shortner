@@ -1,348 +1,343 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>URL Shortener</title>
-
-    <!-- Bootstrap CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <style>
-        :root{
-            --bg: #27272a;
-            --panel: rgba(255,255,255,0.04);
-            --panel-2: rgba(255,255,255,0.06);
-            --border: rgba(255,255,255,0.10);
-            --text: rgba(255,255,255,0.92);
-            --muted: rgba(255,255,255,0.66);
-            --muted-2: rgba(255,255,255,0.50);
-            --accent: #10b981; /* green-500 */
-            --accent-2: #0ea5a5; /* teal-500 */
-        }
-
-        body{
-            margin: 0;
-            min-height: 100vh;
-            background: radial-gradient(1200px 600px at 50% 0%, rgba(16,185,129,0.10), transparent 55%), var(--bg);
-            color: var(--text);
-            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
-        }
-
-        .topbar{
-            position: fixed;
-            top: 14px;
-            right: 18px;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            font-size: 12px;
-            z-index: 5;
-        }
-
-        .topbar a{
-            color: var(--muted);
-            text-decoration: none;
-        }
-
-        .remember-btn{
-            border: 1px solid rgba(16,185,129,0.35);
-            background: rgba(16,185,129,0.15);
-            color: rgba(255,255,255,0.92);
-            padding: 6px 10px;
-            border-radius: 8px;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            cursor: default;
-        }
-
-        .page{
-            padding: 110px 18px 60px;
-        }
-
-        .panel{
-            width: 640px;
-            max-width: calc(100% - 24px);
-            margin: 0 auto;
-            border-radius: 14px;
-            background: var(--panel);
-            border: 1px solid var(--border);
-            padding: 22px 18px 16px;
-        }
-
-        .brand{
-            text-align: center;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            font-size: 28px;
-            margin-bottom: 6px;
-        }
-
-        .subtitle{
-            text-align: center;
-            font-size: 12px;
-            color: var(--muted);
-            margin-bottom: 18px;
-        }
-
-        .url-row{
-            display: flex;
-            gap: 0;
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.10);
-            background: rgba(255,255,255,0.03);
-            overflow: hidden;
-        }
-
-        .url-input{
-            flex: 1;
-            border: 0;
-            outline: none;
-            background: transparent;
-            color: var(--text);
-            padding: 10px 14px;
-            font-size: 14px;
-        }
-
-        .url-input::placeholder{
-            color: rgba(255,255,255,0.35);
-        }
-
-        .submit-btn{
-            width: 44px;
-            border: 0;
-            background: var(--accent);
-            color: #042f2a;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-        }
-
-        .submit-btn:hover{
-            filter: brightness(1.05);
-        }
-
-        .options-row{
-            display: flex;
-            align-items: flex-end;
-            gap: 18px;
-            margin-top: 14px;
-            flex-wrap: wrap;
-        }
-
-        .opt{
-            min-width: 190px;
-            flex: 1;
-        }
-
-        .opt-label{
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--muted);
-            font-weight: 700;
-            font-size: 12px;
-            margin-bottom: 6px;
-            letter-spacing: 0.2px;
-        }
-
-        .ctrl{
-            width: 100%;
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.10);
-            border-radius: 8px;
-            color: var(--text);
-            padding: 8px 10px;
-            height: 36px;
-            outline: none;
-        }
-
-        .ctrl::placeholder{
-            color: rgba(255,255,255,0.35);
-        }
-
-        .divider{
-            margin-top: 18px;
-            border: 0;
-            border-top: 1px solid rgba(255,255,255,0.10);
-        }
-
-        .result-box{
-            margin-top: 18px;
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.10);
-            background: rgba(255,255,255,0.03);
-            padding: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .result-field{
-            flex: 1;
-            border: 0;
-            outline: none;
-            background: transparent;
-            color: var(--text);
-            font-size: 13px;
-        }
-
-        .copy-btn{
-            width: 40px;
-            height: 36px;
-            border-radius: 8px;
-            border: 1px solid rgba(16,185,129,0.35);
-            background: rgba(16,185,129,0.12);
-            color: var(--text);
-            display:flex;
-            align-items:center;
-            justify-content:center;
-        }
-
-        .copy-status{
-            font-size: 12px;
-            color: var(--muted);
-            margin-left: 6px;
-        }
-    </style>
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'shortener/css/site.css' %}">
 </head>
-
 <body>
-<div class="topbar">
-    <a href="#" onclick="return false;">About</a>
-    <a href="#" onclick="return false;">Setup</a>
-    <span class="remember-btn">
-        <span style="color: var(--accent); font-weight: 900;">&#9679;</span>
-        Remember Links
-    </span>
-</div>
-
-<div class="page">
-    <div class="panel">
-        <div class="brand">URL Shortener</div>
-        <div class="subtitle">Simplify every URL you share</div>
-
-        <form method="POST" autocomplete="off">
-            {% csrf_token %}
-
-            {% if error %}
-            <div class="alert alert-danger" role="alert">
-                {{ error }}
+<div class="shell">
+    <header class="masthead">
+        <div>
+            <div class="logo-mark" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 13a5 5 0 0 1 0-7l1-1a5 5 0 0 1 7 7l-1 1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                    <path d="M14 11a5 5 0 0 1 0 7l-1 1a5 5 0 0 1-7-7l1-1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                </svg>
             </div>
-            {% endif %}
-
-            <div class="url-row">
-                <input
-                    type="text"
-                    name="url"
-                    class="url-input"
-                    placeholder="Enter your link in the input field"
-                    required
-                />
-                <button class="submit-btn" type="submit" aria-label="Shorten">
-                    <!-- right-arrow in a circle -->
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M7 17L17 7" stroke="#042f2a" stroke-width="2" stroke-linecap="round"/>
-                        <path d="M9 7H17V15" stroke="#042f2a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
+            <div class="masthead-copy">
+                <div class="masthead-badge"><span class="dot" aria-hidden="true"></span> Link studio</div>
+                <h1>Short links. Sharp presence.</h1>
+                <p>Turn unwieldy URLs into calm, shareable paths. Your remembered links stay on this device with live click counts.</p>
             </div>
+        </div>
+    </header>
 
-            <div class="options-row">
-                <div class="opt">
-                    <div class="opt-label">
-                        <span style="color: var(--accent); font-weight: 900;">&#9679;</span>
-                        Time to live
+    <div class="layout">
+        <section class="card" aria-labelledby="shorten-title">
+            <div class="card-inner">
+                <span id="shorten-title" class="field-label">Paste a destination</span>
+                <form method="POST" autocomplete="off" id="shorten-form">
+                    {% csrf_token %}
+
+                    {% if error %}
+                    <div class="banner-error" role="alert">{{ error }}</div>
+                    {% endif %}
+
+                    <div class="url-combo{% if error %} url-combo--after-error{% endif %}">
+                        <input
+                            type="text"
+                            name="url"
+                            class="url-input"
+                            placeholder="https://example.com/very/long/path"
+                            required
+                        />
+                        <button class="submit-btn" type="submit" aria-label="Shorten URL">
+                            Shorten
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
                     </div>
-                    <select name="ttl" id="ttl" class="ctrl">
-                        <option value="never" selected>never</option>
-                        <option value="year">a year</option>
-                        <option value="month">a month</option>
-                        <option value="week">a week</option>
-                        <option value="day">a day</option>
-                        <option value="hour">an hour</option>
-                    </select>
-                </div>
 
-                <div class="opt">
-                    <div class="opt-label">
-                        <span style="color: var(--accent-2); font-weight: 900;">&#9679;</span>
-                        Call limit
+                    <div class="options-grid">
+                        <div>
+                            <label class="field-label" for="ttl">Expires</label>
+                            <select name="ttl" id="ttl" class="ctrl">
+                                <option value="never" selected>Never</option>
+                                <option value="year">One year</option>
+                                <option value="month">One month</option>
+                                <option value="week">One week</option>
+                                <option value="day">One day</option>
+                                <option value="hour">One hour</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="field-label" for="call_limit">Click budget</label>
+                            <input type="number" min="1" name="call_limit" id="call_limit" class="ctrl" placeholder="Unlimited" />
+                        </div>
+                        <div>
+                            <label class="field-label" for="password">Password</label>
+                            <input type="password" name="password" id="password" class="ctrl" placeholder="Optional" />
+                        </div>
                     </div>
-                    <input
-                        type="number"
-                        min="1"
-                        name="call_limit"
-                        id="call_limit"
-                        class="ctrl"
-                        placeholder="Unlimited"
-                    />
-                </div>
 
-                <div class="opt">
-                    <div class="opt-label">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
-                            <path d="M6 11h12v10H6V11z" stroke="#10b981" stroke-width="2" stroke-linejoin="round"/>
-                        </svg>
-                        Password
+                    <hr class="divider" />
+
+                    {% if short_url %}
+                    <div class="result-block">
+                        <div class="row-top">
+                            <span>Your short link</span>
+                        </div>
+                        <div class="result-field-wrap">
+                            <input id="short_url_output" class="result-field" type="text" value="{{ short_url }}" readonly />
+                            <a class="icon-btn" href="{{ short_url }}" target="_blank" rel="noopener" aria-label="Open short link">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <path d="M14 3h7v7M10 14L21 3M21 14v7H3V3h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </a>
+                            <button class="icon-btn" type="button" onclick="copyShortUrl()" aria-label="Copy short link">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <path d="M9 9h10v10H9V9z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <p id="copyStatus" class="copy-hint" aria-live="polite"></p>
                     </div>
-                    <input
-                        type="password"
-                        name="password"
-                        id="password"
-                        class="ctrl"
-                        placeholder="Leave blank for no password"
-                    />
+                    {% endif %}
+                </form>
+            </div>
+        </section>
+
+        <aside class="card remember-card" aria-labelledby="remember-title">
+            <div class="card-inner">
+                <div class="remember-head">
+                    <div>
+                        <h2 id="remember-title">Remembered links</h2>
+                        <p>Saved in this browser. Clicks update when anyone uses the short URL.</p>
+                    </div>
+                    <div class="remember-actions">
+                        <button type="button" class="btn-ghost" id="btn-refresh-remembered" title="Refresh stats">Refresh</button>
+                        <button type="button" class="btn-ghost danger" id="btn-clear-remembered">Clear</button>
+                    </div>
                 </div>
+                <div class="remember-list" id="remembered-list" aria-live="polite"></div>
             </div>
-
-            <hr class="divider"/>
-
-            {% if short_url %}
-            <div class="result-box">
-                <input
-                    id="short_url_output"
-                    class="result-field"
-                    type="text"
-                    value="{{ short_url }}"
-                    readonly
-                />
-                <a class="copy-btn" href="{{ short_url }}" target="_blank" rel="noopener" aria-label="Open">
-                    <!-- external-link icon -->
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M14 3h7v7" stroke="rgba(255,255,255,0.92)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M10 14L21 3" stroke="rgba(255,255,255,0.92)" stroke-width="2" stroke-linecap="round"/>
-                        <path d="M21 14v7H3V3h7" stroke="rgba(255,255,255,0.92)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </a>
-                <button class="copy-btn" type="button" onclick="copyShortUrl()" aria-label="Copy">
-                    <!-- copy icon -->
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9 9h10v10H9V9z" stroke="rgba(255,255,255,0.92)" stroke-width="2" stroke-linejoin="round"/>
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="rgba(255,255,255,0.92)" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                </button>
-                <span id="copyStatus" class="copy-status"></span>
-            </div>
-            {% endif %}
-        </form>
+        </aside>
     </div>
+
+    <footer class="site-foot">Crafted for clarity · Monochrome by intent</footer>
 </div>
+
+{% if short_url and remember_original_url %}
+{{ short_code|json_script:"ctx-short-code" }}
+{{ remember_original_url|json_script:"ctx-original-url" }}
+{% endif %}
 
 <script>
-    function copyShortUrl(){
-        const url = document.getElementById('short_url_output')?.value || '';
-        if(!url) return;
-        navigator.clipboard.writeText(url).then(() => {
-            const el = document.getElementById('copyStatus');
-            if(el){ el.textContent = 'Copied'; setTimeout(() => { el.textContent = ''; }, 900); }
-        }).catch(() => {
-            prompt('Copy this URL:', url);
+    const STORAGE_KEY = "urlShortenerRemembered_v1";
+    const STATS_URL = "{% url 'link_stats' %}";
+
+    function getCookie(name) {
+        const value = "; " + document.cookie;
+        const parts = value.split("; " + name + "=");
+        if (parts.length === 2) return parts.pop().split(";").shift();
+        return null;
+    }
+
+    function readJsonScript(id) {
+        const el = document.getElementById(id);
+        if (!el) return null;
+        try { return JSON.parse(el.textContent); } catch (e) { return null; }
+    }
+
+    function loadRemembered() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            const parsed = raw ? JSON.parse(raw) : [];
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function saveRemembered(items) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    }
+
+    function rememberLink(shortCode, originalUrl) {
+        if (!shortCode || !originalUrl) return;
+        let items = loadRemembered();
+        items = items.filter((x) => x && x.shortCode !== shortCode);
+        items.unshift({
+            shortCode,
+            originalUrl,
+            createdAt: new Date().toISOString(),
+        });
+        saveRemembered(items.slice(0, 80));
+    }
+
+    function shortUrlForCode(code) {
+        const base = window.location.origin.replace(/\/$/, "");
+        return base + "/" + encodeURIComponent(code) + "/";
+    }
+
+    function truncateUrl(s, max) {
+        if (!s) return "";
+        if (s.length <= max) return s;
+        return s.slice(0, max - 1) + "…";
+    }
+
+    function renderRemembered(statsMap) {
+        const host = document.getElementById("remembered-list");
+        if (!host) return;
+
+        const items = loadRemembered();
+        if (!items.length) {
+            host.innerHTML =
+                '<div class="remember-empty">No links remembered yet. After you shorten a URL, it appears here automatically.</div>';
+            return;
+        }
+
+        const statsReady = statsMap !== null && typeof statsMap === "object";
+
+        host.innerHTML = "";
+        items.forEach((entry) => {
+            const code = entry.shortCode;
+            const row = document.createElement("div");
+            row.className = "link-row";
+
+            const server = statsReady ? statsMap[code] : null;
+            const gone = statsReady && !server;
+            if (gone) row.classList.add("row-gone");
+
+            const origin = document.createElement("div");
+            origin.className = "origin";
+            const label = document.createElement("strong");
+            label.textContent = truncateUrl(entry.originalUrl || "", 96);
+            origin.appendChild(label);
+
+            const shortLine = document.createElement("div");
+            shortLine.className = "short-line";
+
+            const su = document.createElement("span");
+            su.className = "short-url";
+            su.textContent = shortUrlForCode(code);
+
+            const pill = document.createElement("span");
+            pill.className = "stat-pill";
+            if (!statsReady) {
+                pill.innerHTML = "Clicks · <b>…</b>";
+            } else if (gone) {
+                pill.innerHTML = "Clicks · <b>—</b>";
+            } else {
+                pill.innerHTML = "Clicks · <b>" + Number(server.click_count) + "</b>";
+            }
+
+            shortLine.appendChild(su);
+            shortLine.appendChild(pill);
+
+            const actions = document.createElement("div");
+            actions.className = "link-row-actions";
+
+            const openBtn = document.createElement("a");
+            openBtn.className = "icon-btn";
+            openBtn.href = shortUrlForCode(code);
+            openBtn.target = "_blank";
+            openBtn.rel = "noopener";
+            openBtn.setAttribute("aria-label", "Open short link");
+            openBtn.innerHTML =
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 3h7v7M10 14L21 3M21 14v7H3V3h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+            const copyBtn = document.createElement("button");
+            copyBtn.type = "button";
+            copyBtn.className = "icon-btn";
+            copyBtn.setAttribute("aria-label", "Copy short link");
+            copyBtn.innerHTML =
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 9h10v10H9V9z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+            copyBtn.addEventListener("click", () => {
+                const u = shortUrlForCode(code);
+                navigator.clipboard.writeText(u).catch(() => window.prompt("Copy:", u));
+            });
+
+            const delBtn = document.createElement("button");
+            delBtn.type = "button";
+            delBtn.className = "icon-btn";
+            delBtn.setAttribute("aria-label", "Remove from remembered");
+            delBtn.innerHTML =
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+            delBtn.addEventListener("click", () => {
+                const next = loadRemembered().filter((x) => x.shortCode !== code);
+                saveRemembered(next);
+                refreshRemembered();
+            });
+
+            actions.appendChild(openBtn);
+            actions.appendChild(copyBtn);
+            actions.appendChild(delBtn);
+
+            row.appendChild(origin);
+            row.appendChild(shortLine);
+            row.appendChild(actions);
+            host.appendChild(row);
         });
     }
-</script>
 
+    async function refreshRemembered() {
+        const items = loadRemembered();
+        const codes = items.map((x) => x.shortCode).filter(Boolean);
+        if (!codes.length) {
+            renderRemembered({});
+            return;
+        }
+
+        const csrftoken = getCookie("csrftoken");
+        try {
+            const res = await fetch(STATS_URL, {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": csrftoken || "",
+                },
+                body: JSON.stringify({ codes }),
+            });
+            if (!res.ok) throw new Error("stats failed");
+            const data = await res.json();
+            renderRemembered(data.links || {});
+        } catch (e) {
+            renderRemembered(null);
+        }
+    }
+
+    function copyShortUrl() {
+        const el = document.getElementById("short_url_output");
+        const status = document.getElementById("copyStatus");
+        const url = el ? el.value : "";
+        if (!url) return;
+        navigator.clipboard.writeText(url).then(() => {
+            if (status) {
+                status.textContent = "Copied to clipboard.";
+                setTimeout(() => { status.textContent = ""; }, 1600);
+            }
+        }).catch(() => {
+            window.prompt("Copy this URL:", url);
+        });
+    }
+
+    document.getElementById("btn-refresh-remembered")?.addEventListener("click", refreshRemembered);
+    document.getElementById("btn-clear-remembered")?.addEventListener("click", () => {
+        if (confirm("Remove all remembered links from this browser?")) {
+            localStorage.removeItem(STORAGE_KEY);
+            refreshRemembered();
+        }
+    });
+
+    (function bootstrapFromServer() {
+        const sc = readJsonScript("ctx-short-code");
+        const orig = readJsonScript("ctx-original-url");
+        if (sc && orig) {
+            rememberLink(String(sc), String(orig));
+        }
+    })();
+
+    document.addEventListener("DOMContentLoaded", refreshRemembered);
+</script>
 </body>
 </html>

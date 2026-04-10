@@ -1,9 +1,13 @@
+import json
 from datetime import timedelta
 
 from django.contrib.auth.hashers import check_password, make_password
-from django.http import Http404
+from django.db.models import F
+from django.http import Http404, JsonResponse
 from django.shortcuts import redirect, render
 from django.utils import timezone
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_POST
 
 from .models import URL
 from .utils import generate_short_code
@@ -27,6 +31,7 @@ def _parse_ttl(ttl_key: str | None, now):
     return TTL_MAP[ttl_key](now)
 
 
+@ensure_csrf_cookie
 def home(request):
     if request.method == "POST":
         long_url = (request.POST.get("url") or "").strip()
@@ -77,18 +82,62 @@ def home(request):
             {
                 "short_url": short_url,
                 "short_code": code,
+                "remember_original_url": long_url,
             },
         )
 
     return render(request, "shortener/home.html")
 
 
-def _handle_redirect_after_checks(request, url_obj: URL):
-    """Redirect to original URL and apply call decrement if configured."""
-    if url_obj.calls_remaining is not None and url_obj.calls_remaining > 0:
-        url_obj.calls_remaining -= 1
-        url_obj.save(update_fields=["calls_remaining"])
+_MAX_STATS_CODES = 80
 
+
+@require_POST
+def link_stats(request):
+    """Return click counts and destinations for a set of short codes (for Remember Links)."""
+    try:
+        body = json.loads(request.body.decode("utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({"error": "Invalid JSON."}, status=400)
+
+    codes = body.get("codes")
+    if not isinstance(codes, list):
+        return JsonResponse({"error": "Expected a JSON array field 'codes'."}, status=400)
+
+    normalized = []
+    seen = set()
+    for raw in codes:
+        if len(normalized) >= _MAX_STATS_CODES:
+            break
+        c = str(raw).strip()[:10]
+        if not c or c in seen:
+            continue
+        seen.add(c)
+        normalized.append(c)
+
+    if not normalized:
+        return JsonResponse({"links": {}})
+
+    rows = URL.objects.filter(short_code__in=normalized).values(
+        "short_code", "original_url", "click_count"
+    )
+    links = {
+        row["short_code"]: {
+            "short_code": row["short_code"],
+            "original_url": row["original_url"],
+            "click_count": row["click_count"],
+        }
+        for row in rows
+    }
+    return JsonResponse({"links": links})
+
+
+def _handle_redirect_after_checks(request, url_obj: URL):
+    """Redirect to original URL, record a click, and apply call decrement if configured."""
+    updates: dict = {"click_count": F("click_count") + 1}
+    if url_obj.calls_remaining is not None and url_obj.calls_remaining > 0:
+        updates["calls_remaining"] = F("calls_remaining") - 1
+    URL.objects.filter(pk=url_obj.pk).update(**updates)
     return redirect(url_obj.original_url)
 
 
