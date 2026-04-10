@@ -1,30 +1,129 @@
-from django.shortcuts import render, redirect
+from datetime import timedelta
+
+from django.contrib.auth.hashers import check_password, make_password
+from django.http import Http404
+from django.shortcuts import redirect, render
+from django.utils import timezone
+
 from .models import URL
 from .utils import generate_short_code
 
 
-def home(request):
+TTL_MAP = {
+    # shrtn-like TTL options
+    "year": lambda now: now + timedelta(days=365),
+    "month": lambda now: now + timedelta(days=30),
+    "week": lambda now: now + timedelta(days=7),
+    "day": lambda now: now + timedelta(days=1),
+    "hour": lambda now: now + timedelta(hours=1),
+}
 
+
+def _parse_ttl(ttl_key: str | None, now):
+    if not ttl_key or ttl_key == "never":
+        return None
+    if ttl_key not in TTL_MAP:
+        return None
+    return TTL_MAP[ttl_key](now)
+
+
+def home(request):
     if request.method == "POST":
-        long_url = request.POST.get("url")
+        long_url = (request.POST.get("url") or "").strip()
+        if not long_url:
+            return render(request, "shortener/home.html", {"error": "Please enter a URL."})
+
+        ttl_key = (request.POST.get("ttl") or "never").strip()
+        now = timezone.now()
+        expires_at = _parse_ttl(ttl_key, now)
+
+        call_limit_raw = (request.POST.get("call_limit") or "").strip()
+        calls_remaining = None
+        if call_limit_raw:
+            try:
+                parsed = int(call_limit_raw)
+                if parsed <= 0:
+                    return render(
+                        request,
+                        "shortener/home.html",
+                        {"error": "Call limit must be a positive number."},
+                    )
+                calls_remaining = parsed
+            except ValueError:
+                return render(
+                    request,
+                    "shortener/home.html",
+                    {"error": "Call limit must be a number."},
+                )
+
+        password = (request.POST.get("password") or "").strip()
+        password_hash = make_password(password) if password else ""
 
         code = generate_short_code()
-
         URL.objects.create(
             original_url=long_url,
-            short_code=code
+            short_code=code,
+            expires_at=expires_at,
+            calls_remaining=calls_remaining,
+            password_hash=password_hash,
         )
 
-        short_url = request.build_absolute_uri(code)
-
-        return render(request, "shortener/home.html", {"short_url": short_url})
+        # Our redirect route is defined as `/<code>/`, so generate URLs with
+        # the trailing slash to avoid relying on Django's APPEND_SLASH.
+        short_url = request.build_absolute_uri(f"{code}/")
+        return render(
+            request,
+            "shortener/home.html",
+            {
+                "short_url": short_url,
+                "short_code": code,
+            },
+        )
 
     return render(request, "shortener/home.html")
 
 
+def _handle_redirect_after_checks(request, url_obj: URL):
+    """Redirect to original URL and apply call decrement if configured."""
+    if url_obj.calls_remaining is not None and url_obj.calls_remaining > 0:
+        url_obj.calls_remaining -= 1
+        url_obj.save(update_fields=["calls_remaining"])
+
+    return redirect(url_obj.original_url)
+
+
 def redirect_url(request, code):
+    try:
+        url_obj = URL.objects.get(short_code=code)
+    except URL.DoesNotExist:
+        raise Http404("Short URL not found.")
 
-    url = URL.objects.get(short_code=code)
+    now = timezone.now()
+    if url_obj.expires_at is not None and now > url_obj.expires_at:
+        return render(request, "shortener/expired.html", {"short_code": code})
 
-    return redirect(url.original_url)
-# Create your views here.
+    if url_obj.calls_remaining is not None and url_obj.calls_remaining <= 0:
+        return render(request, "shortener/limit_reached.html", {"short_code": code})
+
+    # If password-protected, require unlocking once per browser session.
+    if url_obj.password_hash:
+        session_key = "unlocked_short_codes"
+        unlocked = set(request.session.get(session_key, []))
+
+        if code not in unlocked:
+            if request.method == "POST":
+                provided_password = (request.POST.get("password") or "").strip()
+                if provided_password and check_password(provided_password, url_obj.password_hash):
+                    unlocked.add(code)
+                    request.session[session_key] = list(unlocked)
+                    return _handle_redirect_after_checks(request, url_obj)
+                return render(
+                    request,
+                    "shortener/password_prompt.html",
+                    {"short_code": code, "error": "Incorrect password."},
+                )
+
+            return render(request, "shortener/password_prompt.html", {"short_code": code})
+
+    return _handle_redirect_after_checks(request, url_obj)
+

@@ -7,72 +7,342 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
+        :root{
+            --bg: #27272a;
+            --panel: rgba(255,255,255,0.04);
+            --panel-2: rgba(255,255,255,0.06);
+            --border: rgba(255,255,255,0.10);
+            --text: rgba(255,255,255,0.92);
+            --muted: rgba(255,255,255,0.66);
+            --muted-2: rgba(255,255,255,0.50);
+            --accent: #10b981; /* green-500 */
+            --accent-2: #0ea5a5; /* teal-500 */
+        }
+
         body{
-            background: linear-gradient(135deg,#667eea,#764ba2);
-            height:100vh;
+            margin: 0;
+            min-height: 100vh;
+            background: radial-gradient(1200px 600px at 50% 0%, rgba(16,185,129,0.10), transparent 55%), var(--bg);
+            color: var(--text);
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+        }
+
+        .topbar{
+            position: fixed;
+            top: 14px;
+            right: 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 12px;
+            z-index: 5;
+        }
+
+        .topbar a{
+            color: var(--muted);
+            text-decoration: none;
+        }
+
+        .remember-btn{
+            border: 1px solid rgba(16,185,129,0.35);
+            background: rgba(16,185,129,0.15);
+            color: rgba(255,255,255,0.92);
+            padding: 6px 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: default;
+        }
+
+        .page{
+            padding: 110px 18px 60px;
+        }
+
+        .panel{
+            width: 640px;
+            max-width: calc(100% - 24px);
+            margin: 0 auto;
+            border-radius: 14px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 22px 18px 16px;
+        }
+
+        .brand{
+            text-align: center;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            font-size: 28px;
+            margin-bottom: 6px;
+        }
+
+        .subtitle{
+            text-align: center;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 18px;
+        }
+
+        .url-row{
+            display: flex;
+            gap: 0;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.03);
+            overflow: hidden;
+        }
+
+        .url-input{
+            flex: 1;
+            border: 0;
+            outline: none;
+            background: transparent;
+            color: var(--text);
+            padding: 10px 14px;
+            font-size: 14px;
+        }
+
+        .url-input::placeholder{
+            color: rgba(255,255,255,0.35);
+        }
+
+        .submit-btn{
+            width: 44px;
+            border: 0;
+            background: var(--accent);
+            color: #042f2a;
             display:flex;
-            justify-content:center;
             align-items:center;
-            font-family: Arial;
+            justify-content:center;
         }
 
-        .card{
-            padding:40px;
-            border-radius:15px;
-            box-shadow:0px 10px 30px rgba(0,0,0,0.2);
+        .submit-btn:hover{
+            filter: brightness(1.05);
         }
 
-        .title{
-            font-weight:bold;
-            margin-bottom:20px;
+        .options-row{
+            display: flex;
+            align-items: flex-end;
+            gap: 18px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        .opt{
+            min-width: 190px;
+            flex: 1;
+        }
+
+        .opt-label{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--muted);
+            font-weight: 700;
+            font-size: 12px;
+            margin-bottom: 6px;
+            letter-spacing: 0.2px;
+        }
+
+        .ctrl{
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 8px;
+            color: var(--text);
+            padding: 8px 10px;
+            height: 36px;
+            outline: none;
+        }
+
+        .ctrl::placeholder{
+            color: rgba(255,255,255,0.35);
+        }
+
+        .divider{
+            margin-top: 18px;
+            border: 0;
+            border-top: 1px solid rgba(255,255,255,0.10);
+        }
+
+        .result-box{
+            margin-top: 18px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.03);
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-field{
+            flex: 1;
+            border: 0;
+            outline: none;
+            background: transparent;
+            color: var(--text);
+            font-size: 13px;
+        }
+
+        .copy-btn{
+            width: 40px;
+            height: 36px;
+            border-radius: 8px;
+            border: 1px solid rgba(16,185,129,0.35);
+            background: rgba(16,185,129,0.12);
+            color: var(--text);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+        }
+
+        .copy-status{
+            font-size: 12px;
+            color: var(--muted);
+            margin-left: 6px;
         }
     </style>
 
 </head>
 
 <body>
-
-<div class="card col-md-5">
-
-<h2 class="text-center title">🔗 URL Shortener</h2>
-
-<form method="POST">
-    {% csrf_token %}
-
-    <div class="mb-3">
-        <input 
-        type="text" 
-        name="url" 
-        class="form-control"
-        placeholder="Paste your long URL here"
-        required>
-    </div>
-
-    <div class="d-grid">
-        <button class="btn btn-primary">
-            Shorten URL
-        </button>
-    </div>
-
-</form>
-
-{% if short_url %}
-
-<div class="alert alert-success mt-4 text-center">
-
-    <strong>Your Short URL:</strong>
-
-    <br><br>
-
-    <a href="{{ short_url }}" target="_blank">
-        {{ short_url }}
-    </a>
-
+<div class="topbar">
+    <a href="#" onclick="return false;">About</a>
+    <a href="#" onclick="return false;">Setup</a>
+    <span class="remember-btn">
+        <span style="color: var(--accent); font-weight: 900;">&#9679;</span>
+        Remember Links
+    </span>
 </div>
 
-{% endif %}
+<div class="page">
+    <div class="panel">
+        <div class="brand">URL Shortener</div>
+        <div class="subtitle">Simplify every URL you share</div>
 
+        <form method="POST" autocomplete="off">
+            {% csrf_token %}
+
+            {% if error %}
+            <div class="alert alert-danger" role="alert">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <div class="url-row">
+                <input
+                    type="text"
+                    name="url"
+                    class="url-input"
+                    placeholder="Enter your link in the input field"
+                    required
+                />
+                <button class="submit-btn" type="submit" aria-label="Shorten">
+                    <!-- right-arrow in a circle -->
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 17L17 7" stroke="#042f2a" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M9 7H17V15" stroke="#042f2a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="options-row">
+                <div class="opt">
+                    <div class="opt-label">
+                        <span style="color: var(--accent); font-weight: 900;">&#9679;</span>
+                        Time to live
+                    </div>
+                    <select name="ttl" id="ttl" class="ctrl">
+                        <option value="never" selected>never</option>
+                        <option value="year">a year</option>
+                        <option value="month">a month</option>
+                        <option value="week">a week</option>
+                        <option value="day">a day</option>
+                        <option value="hour">an hour</option>
+                    </select>
+                </div>
+
+                <div class="opt">
+                    <div class="opt-label">
+                        <span style="color: var(--accent-2); font-weight: 900;">&#9679;</span>
+                        Call limit
+                    </div>
+                    <input
+                        type="number"
+                        min="1"
+                        name="call_limit"
+                        id="call_limit"
+                        class="ctrl"
+                        placeholder="Unlimited"
+                    />
+                </div>
+
+                <div class="opt">
+                    <div class="opt-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#10b981" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M6 11h12v10H6V11z" stroke="#10b981" stroke-width="2" stroke-linejoin="round"/>
+                        </svg>
+                        Password
+                    </div>
+                    <input
+                        type="password"
+                        name="password"
+                        id="password"
+                        class="ctrl"
+                        placeholder="Leave blank for no password"
+                    />
+                </div>
+            </div>
+
+            <hr class="divider"/>
+
+            {% if short_url %}
+            <div class="result-box">
+                <input
+                    id="short_url_output"
+                    class="result-field"
+                    type="text"
+                    value="{{ short_url }}"
+                    readonly
+                />
+                <a class="copy-btn" href="{{ short_url }}" target="_blank" rel="noopener" aria-label="Open">
+                    <!-- external-link icon -->
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 3h7v7" stroke="rgba(255,255,255,0.92)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M10 14L21 3" stroke="rgba(255,255,255,0.92)" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M21 14v7H3V3h7" stroke="rgba(255,255,255,0.92)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+                <button class="copy-btn" type="button" onclick="copyShortUrl()" aria-label="Copy">
+                    <!-- copy icon -->
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 9h10v10H9V9z" stroke="rgba(255,255,255,0.92)" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="rgba(255,255,255,0.92)" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </button>
+                <span id="copyStatus" class="copy-status"></span>
+            </div>
+            {% endif %}
+        </form>
+    </div>
 </div>
+
+<script>
+    function copyShortUrl(){
+        const url = document.getElementById('short_url_output')?.value || '';
+        if(!url) return;
+        navigator.clipboard.writeText(url).then(() => {
+            const el = document.getElementById('copyStatus');
+            if(el){ el.textContent = 'Copied'; setTimeout(() => { el.textContent = ''; }, 900); }
+        }).catch(() => {
+            prompt('Copy this URL:', url);
+        });
+    }
+</script>
 
 </body>
 </html>
