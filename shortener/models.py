@@ -7,7 +7,7 @@ class URL(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     click_count = models.PositiveIntegerField(default=0)
 
-    # Optional feature fields (used by the updated shrtn-like UI).
+
     expires_at = models.DateTimeField(null=True, blank=True)
     calls_remaining = models.PositiveIntegerField(null=True, blank=True)
     password_hash = models.CharField(max_length=255, blank=True)
@@ -17,7 +17,7 @@ class URL(models.Model):
 
     @property
     def is_expired(self):
-        # Lazy import to avoid timezone dependency at import-time.
+
         from django.utils import timezone
 
         return self.expires_at is not None and timezone.now() > self.expires_at
