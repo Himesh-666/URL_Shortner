@@ -2,6 +2,7 @@ import json
 from datetime import timedelta
 
 from django.contrib.auth.hashers import check_password, make_password
+from django.db import transaction
 from django.db.models import F
 from django.http import Http404, JsonResponse
 from django.shortcuts import redirect, render
@@ -10,7 +11,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 
 from .models import URL
-from .utils import generate_short_code
+from .utils import base62_encode
 
 
 TTL_MAP = {
@@ -64,14 +65,17 @@ def home(request):
         password = (request.POST.get("password") or "").strip()
         password_hash = make_password(password) if password else ""
 
-        code = generate_short_code()
-        URL.objects.create(
-            original_url=long_url,
-            short_code=code,
-            expires_at=expires_at,
-            calls_remaining=calls_remaining,
-            password_hash=password_hash,
-        )
+        with transaction.atomic():
+            url = URL(
+                original_url=long_url,
+                expires_at=expires_at,
+                calls_remaining=calls_remaining,
+                password_hash=password_hash,
+            )
+            url.save()
+            url.short_code = base62_encode(url.pk)
+            url.save(update_fields=["short_code"])
+        code = url.short_code
 
         # Our redirect route is defined as `/<code>/`, so generate URLs with
         # the trailing slash to avoid relying on Django's APPEND_SLASH.
@@ -109,7 +113,7 @@ def link_stats(request):
     for raw in codes:
         if len(normalized) >= _MAX_STATS_CODES:
             break
-        c = str(raw).strip()[:10]
+        c = str(raw).strip()[:12]
         if not c or c in seen:
             continue
         seen.add(c)
